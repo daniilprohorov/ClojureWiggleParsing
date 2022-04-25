@@ -3,6 +3,7 @@
 (require '[clj-http.client :as client])
 (require '[hickory.select :as s])
 (require '[clojure.string :as str])
+(require '[clojure.core.match :refer [match]])
 
 (defn foo
   "I don't do a whole lot."
@@ -14,6 +15,9 @@
   (-> (client/get url) :body parse as-hickory
   ))
 
+(def wigglePrefix
+  "https://www.wiggle.co.uk/cycle/")
+
 (defn getCategoriesUrls
   ([url]
    (getCategoriesUrls url nil))
@@ -24,14 +28,32 @@
                (s/class "plp-refinements__section__list__item-link")
                html))
      urls (map #((% :attrs) :href) lst)
-     urlsWithoutBreadcrumbs (map #(str/replace % "#breadcrumbs" "") urls)
+     urlModification (comp #(str/replace % wigglePrefix "") #(str/replace % "#breadcrumbs" ""))
+     urlsWithoutBreadcrumbs (map urlModification urls)
+     base (str/replace url wigglePrefix "")
      filterUrls_ (conj filterUrls url)
      filtered (remove (set filterUrls_) urlsWithoutBreadcrumbs)
      ]
-     {:urls filtered :filterUrls filterUrls_}
+     {:base base :urls filtered :filterUrls filterUrls_}
     ))
   )
 
+(defn getAllLinks [arg]
+  (match arg
+         {:base base :urls urls :filterUrls filterUrls}
+            {}
+         {:base base :urls [] :filterUrls filterUrls}
+         :else
+            :no-match))
+
+(defn kek [maps]
+  (match  maps
+          {:lol []} 0
+          {:lol a} a
+          {:kek b} b))
+
+
+(def startUrl "https://www.wiggle.co.uk/cycle/bike-parts")
 (def filterUrlsBase
   ["https://www.wiggle.co.uk/"])
 
