@@ -41,8 +41,11 @@
 (defn getAllLinks [arg]
   (match arg
          {:base base :urls urls :filterUrls filterUrls}
-            {}
+            ((let [new_val (map #(getCategoriesUrls (urlConcat startUrl %) filterUrls) urls)]
+               (new_val "kek")
+              ))
          {:base base :urls [] :filterUrls filterUrls}
+            `kek
          :else
             :no-match))
 
@@ -56,4 +59,12 @@
 (def startUrl "https://www.wiggle.co.uk/cycle/bike-parts")
 (def filterUrlsBase
   ["https://www.wiggle.co.uk/"])
+
+(def cycleUrlBase "https://www.wiggle.co.uk/cycle")
+
+(defn urlConcat
+  [prefix postfix]
+  (str/join "/" [prefix postfix]))
+
+
 
